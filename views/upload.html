@@ -1,0 +1,125 @@
+<html>
+<head>
+    <link rel="stylesheet" type="text/css" href="/css/main.css">
+</head>
+<body>
+
+<h1>Edit your account</h1>
+
+<hr />
+
+<h2>Your avatar</h2>
+
+<input type="file" id="file_input"/>
+<p id="status">Select a file</p>
+<img id="preview" src="/images/default.png" />
+
+<div id="tags" style="display:none">
+  	
+  <p> <b>Tags </b></p>
+</div>
+
+<script type="text/javascript">
+
+function tagImages(file) {
+    console.log("tagImages "+ file.name);
+	var params = "file="+file.name;
+    var xhr = new XMLHttpRequest();
+    xhr.open("GET", "/recognize?file_name="+file.name);
+	xhr.onreadystatechange = function(){
+        if(xhr.readyState === 4){
+            if(xhr.status === 200){
+			    var response = JSON.parse(xhr.responseText);
+				console.log("rekognition labels", response);
+				populateTags(response);
+            }
+            else{
+                alert("Could not call aws rekognition ");
+            }
+        }
+    };
+    xhr.send();
+    
+}
+
+function populateTags(responseArr) {
+    console.log("populateTags");
+	var html = "";
+	for (var entry in responseArr) {
+	    console.log("Name", responseArr[entry].Name);
+		var items="<li>"+responseArr[entry].Name+"</li>";
+		html = html + items;
+	}
+	
+    document.getElementById("tags").style.display = 'inline';
+	
+	/*var tags = ["Bird", "Arctic", "Snow"];
+    var html = "";
+	for (var i in tags) {
+	    var items="<li>"+tags[i]+"</li>";
+		html = html + items;
+	}*/
+    document.getElementById("tags").innerHTML = "<ul>"+html+"</ul>";
+}
+
+// Function to PUT request to S3 using the signed request from the app
+function upload_file(file, signed_request, url){
+    var xhr = new XMLHttpRequest();
+    xhr.open("PUT", signed_request);
+    xhr.setRequestHeader('x-amz-acl', 'public-read');
+    xhr.onreadystatechange = function(){
+        if(xhr.readyState === 4){
+            if(xhr.status === 200){
+                document.getElementById("preview").src = url;
+				tagImages(file);
+            }
+            else{
+                alert("Could not upload file");
+            }
+        }
+    };
+    xhr.send(file);
+}
+
+
+// Get the temporary signed request from the app.
+// If request successful, upload the file using this signed request
+function get_signed_request(file){
+    console.log("Attempting to get signed request");
+    var xhr = new XMLHttpRequest();
+    xhr.open("GET", "/sign_s3?file_name="+file.name+"&file_type="+file.type);
+    xhr.onreadystatechange = function(){
+        if(xhr.readyState === 4){
+            if(xhr.status === 200){
+                var response = JSON.parse(xhr.responseText);
+                upload_file(file, response.signed_request, response.url);
+            }
+            else{
+                alert("Could not get signed URL");
+            }
+        }
+    };
+    xhr.send();
+}
+
+
+// Start upload procedure when file input changes
+function init_upload(){
+    var files = document.getElementById("file_input").files;
+    var file = files[0];
+    if(file == null){
+        alert("No file selected");
+        return;
+    }
+    get_signed_request(file);
+}
+
+// Bind listeners
+(function() {
+    document.getElementById("tags").visibility = 'hidden';
+    document.getElementById("file_input").onchange = init_upload;
+})();
+
+</script>
+</body>
+</html>

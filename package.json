@@ -1,0 +1,11 @@
+{
+  "name": "imagetagger",
+  "version": "0.0.1",
+  "private": true,
+  "dependencies": {
+    "aws-sdk": "*",
+    "dotenv": "^2.0.0",
+    "ejs": "*",
+    "express": "3.x"
+  }
+}

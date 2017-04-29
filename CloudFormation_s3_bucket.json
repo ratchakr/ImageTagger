@@ -1,0 +1,30 @@
+{
+    "AWSTemplateFormatVersion": "2010-09-09",
+    "Description": "AWS CloudFormation for s3 bucket creation",
+    "Resources": {
+        "S3Bucket": {
+            "Type": "AWS::S3::Bucket",
+            "Properties": {
+				"AccessControl": "PublicRead",
+                "BucketName": "la-image-tagger-chakrar27",
+                "CorsConfiguration": {
+                    "CorsRules": [
+                    {
+                        "AllowedHeaders": ["*"],
+                        "AllowedMethods": ["GET", "PUT"],
+                        "MaxAge": 3000,
+                        "AllowedOrigins": ["*"]
+                    }]
+                }
+            }
+        }
+    },
+	"Outputs": {
+        "BucketName": {
+            "Value": {
+                "Ref": "S3Bucket"
+            },
+            "Description": "Name of the sample Amazon S3 bucket with CORS enabled."
+        }
+    }
+}
