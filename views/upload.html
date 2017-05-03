@@ -1,23 +1,100 @@
+<!doctype html>
 <html>
 <head>
-    <link rel="stylesheet" type="text/css" href="/css/main.css">
+    <meta charset="UTF-8">
+    <title>PhotoGallary</title>
+    <link rel="stylesheet" type="text/css" href="../css/main.css">
+    <script 
+  src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
+  crossorigin="anonymous"></script>
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="./js/utils.js"></script>
+  <script type="text/javascript">
+    $(function(){
+
+        var host = '{{host}}';
+        $(document).on('click', '#doUpload', function () {
+            //alert("123"+ host);
+            upload();
+        })
+
+        function upload() {
+            $('.progress').fadeIn(100);
+            var uploadURL = host + '/upload';
+            var uploadFile = $('.uploadPic');
+            if (uploadFile.val() != '') {
+                var form = new FormData ();
+                form.append("upload", uploadFile[0].files[0]);
+                // upload file to node backend by doing ajax call from front-end
+                ajax({
+                    method: 'post',
+                    url: uploadURL,
+                    success: function () {
+                        $('.progress').fadeOut(200);
+                        uploadFile.val('');
+                    },
+                    progress: function(e) {
+                        if (e.lengthComputable) {
+                            var perc = Math.round((e.loaded * 100) / e.total);
+                            $('.progress').css('width', (perc + '%'));
+                        }
+                    },
+                    payload: form
+                })
+            }
+        }
+    })
+  </script>
 </head>
 <body>
 
-<h1>Edit your account</h1>
+	<div class="container">
+		<div class="topDeck">
+			<div class="logo">
+				<h1>PhotoGallery</h1>
+			</div>
+			<div class="controls">
+				<input type="file" name="uploadPic" class="uploadPic">
+				<button id="doUpload">Upload</button>
+				<div class="progressBarDiv">
+					<div class="progress" ></div>
+				</div>
+				<h5 class="status"></h5>
+			</div>
+		</div>
+		<div class="gallery">
+			<ul>
+				<!-- Repeat the following <li> structure for every image -->
+				 <li>
+					<div class="overlay">
+					<div class="voteCtrl">
+						<a href="#" class="voteUp">
+							<img src="/images/like.png" alt="Click Here to Like !">
+							<h4>100</h4>
+						</a>
+					</div>
+					</div>
+					<div class="imageHolder">
+						<img src="/images/someimage.jpg" alt="">
+					</div>
+					<div id="tags" style="display:none">
+						<p> <b>Tags </b></p>
+					</div>
+				</li> 
+				<!-- End Repeat -->
+			</ul>
+		</div>
+	</div>
 
-<hr />
 
-<h2>Your avatar</h2>
-
-<input type="file" id="file_input"/>
+<!--<input type="file" id="file_input"/>
 <p id="status">Select a file</p>
 <img id="preview" src="/images/default.png" />
 
 <div id="tags" style="display:none">
   	
   <p> <b>Tags </b></p>
-</div>
+</div> -->
 
 <script type="text/javascript">
 
@@ -52,13 +129,6 @@ function populateTags(responseArr) {
 	}
 	
     document.getElementById("tags").style.display = 'inline';
-	
-	/*var tags = ["Bird", "Arctic", "Snow"];
-    var html = "";
-	for (var i in tags) {
-	    var items="<li>"+tags[i]+"</li>";
-		html = html + items;
-	}*/
     document.getElementById("tags").innerHTML = "<ul>"+html+"</ul>";
 }
 
