@@ -18,6 +18,48 @@
             upload();
         })
 
+        var socket = io(host);
+        socket.on('status', function(data){
+            showStatus(data.msg, data.delay);
+        })
+
+        socket.on('doUpdate', function() {
+            console.log('Render the List in UI now ');
+            renderImages();
+        })
+
+        function renderImages () {
+            $('.gallery ul').html('');
+                ajax({
+                    url: host + '/getimages',
+                    success:function(data){
+                        var imageList = JSON.parse(data.response);
+                        for(var i = 0; i < imageList.length; i++){
+                            console.log('... In renderImages function ...');
+                            console.log('tags = ',imageList[i].tags);
+                            var str = '<li>';
+                            str += '<div class="overlay">';
+                            str += '<div class="voteCtrl">';
+                            str += '<a href="#" data-photoid="' + imageList[i].id + '" class="voteUp">';
+                            str += '<img src="../images/like.png" alt="Click Here to Like !">';
+                            str += '<h4>' + imageList[i].likes + '</h4>';
+                            str += '</a>';
+                            str += '</div>';
+                            str += '</div>';
+                            str += '<div class="imageHolder">';
+                            str += '<img src="https://s3.amazonaws.com/la-image-tagger-chakrar27/' + imageList[i].filename + '" alt="">';
+                            str += '</div>';
+                            str += '<div class="tags">';
+                            str += '<a href="#" tag-id="' + imageList[i].tags + '</a>';
+                            //str += '<p>' + imageList[i].tags + '</p>';
+                            str += '</div>';
+                            str += '</li>';
+                            $('.gallery ul').append(str);
+                        }
+                    }
+                })            
+        }
+
         function upload() {
             $('.progress').fadeIn(100);
             var uploadURL = host + '/upload';
@@ -65,131 +107,30 @@
 		<div class="gallery">
 			<ul>
 				<!-- Repeat the following <li> structure for every image -->
-				 <li>
+				<!--<li>
 					<div class="overlay">
 					<div class="voteCtrl">
-						<a href="#" class="voteUp">
+						<a href="#">
 							<img src="/images/like.png" alt="Click Here to Like !">
 							<h4>100</h4>
 						</a>
 					</div>
 					</div>
-					<div class="imageHolder">
+					<!--<div class="imageHolder">
 						<img src="/images/someimage.jpg" alt="">
-					</div>
-					<div id="tags" style="display:none">
-						<p> <b>Tags </b></p>
-					</div>
-				</li> 
+					</div>-->
+                    <!--<div class="overlay">
+                        <div class="tags">
+                            <a href="#">
+                                <h4>Mountain</h4>
+                            </a>
+                        </div>
+                    <!--</div>
+				</li> -->
+                
 				<!-- End Repeat -->
 			</ul>
 		</div>
 	</div>
-
-
-<!--<input type="file" id="file_input"/>
-<p id="status">Select a file</p>
-<img id="preview" src="/images/default.png" />
-
-<div id="tags" style="display:none">
-  	
-  <p> <b>Tags </b></p>
-</div> -->
-
-<script type="text/javascript">
-
-function tagImages(file) {
-    console.log("tagImages "+ file.name);
-	var params = "file="+file.name;
-    var xhr = new XMLHttpRequest();
-    xhr.open("GET", "/recognize?file_name="+file.name);
-	xhr.onreadystatechange = function(){
-        if(xhr.readyState === 4){
-            if(xhr.status === 200){
-			    var response = JSON.parse(xhr.responseText);
-				console.log("rekognition labels", response);
-				populateTags(response);
-            }
-            else{
-                alert("Could not call aws rekognition ");
-            }
-        }
-    };
-    xhr.send();
-    
-}
-
-function populateTags(responseArr) {
-    console.log("populateTags");
-	var html = "";
-	for (var entry in responseArr) {
-	    console.log("Name", responseArr[entry].Name);
-		var items="<li>"+responseArr[entry].Name+"</li>";
-		html = html + items;
-	}
-	
-    document.getElementById("tags").style.display = 'inline';
-    document.getElementById("tags").innerHTML = "<ul>"+html+"</ul>";
-}
-
-// Function to PUT request to S3 using the signed request from the app
-function upload_file(file, signed_request, url){
-    var xhr = new XMLHttpRequest();
-    xhr.open("PUT", signed_request);
-    xhr.setRequestHeader('x-amz-acl', 'public-read');
-    xhr.onreadystatechange = function(){
-        if(xhr.readyState === 4){
-            if(xhr.status === 200){
-                document.getElementById("preview").src = url;
-				tagImages(file);
-            }
-            else{
-                alert("Could not upload file");
-            }
-        }
-    };
-    xhr.send(file);
-}
-
-
-// Get the temporary signed request from the app.
-// If request successful, upload the file using this signed request
-function get_signed_request(file){
-    console.log("Attempting to get signed request");
-    var xhr = new XMLHttpRequest();
-    xhr.open("GET", "/sign_s3?file_name="+file.name+"&file_type="+file.type);
-    xhr.onreadystatechange = function(){
-        if(xhr.readyState === 4){
-            if(xhr.status === 200){
-                var response = JSON.parse(xhr.responseText);
-                upload_file(file, response.signed_request, response.url);
-            }
-            else{
-                alert("Could not get signed URL");
-            }
-        }
-    };
-    xhr.send();
-}
-
-
-// Start upload procedure when file input changes
-function init_upload(){
-    var files = document.getElementById("file_input").files;
-    var file = files[0];
-    if(file == null){
-        alert("No file selected");
-        return;
-    }
-    get_signed_request(file);
-}
-
-// Bind listeners
-(function() {
-    document.getElementById("tags").visibility = 'hidden';
-    document.getElementById("file_input").onchange = init_upload;
-})();
-
-</script>
 </body>
 </html>

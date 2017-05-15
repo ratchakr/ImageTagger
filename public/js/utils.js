@@ -3,7 +3,6 @@ function showStatus(msg,delay){
 }
 
 function ajax(config){
-			alert('ajax called = '+config);
 			this.method = config.method || 'GET';
 			this.payload = config.payload || null;
 			var xhr = new XMLHttpRequest();

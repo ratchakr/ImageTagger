@@ -16,7 +16,8 @@ var os = require('os');
 var formidable = require('formidable');
 var gm = require('gm');
 var knox = require('knox');
-
+var couchbase = require("couchbase");
+var config = require("./config");
 
 /*
  * Load S3 information from environment variables (.env)
@@ -35,10 +36,19 @@ app.set('views', __dirname + '/views');
 app.engine('html', require('hogan-express'));
 app.set('port', process.env.PORT || 3000);
 app.set('host', process.env.HOST || "localhost");
+
+// Global declaration of the Couchbase server and bucket to be used
+module.exports.bucket = (new couchbase.Cluster(process.env.COUCHBASE_HOST || config.couchbase.server)).openBucket(
+    process.env.COUCHBASE_BUCKET || config.couchbase.bucket);
+
+aws.config.update({accessKeyId: AWS_ACCESS_KEY , secretAccessKey: AWS_SECRET_KEY });
+aws.config.update({region: 'us-east-1' , signatureVersion: 'v4' });
+
 app.use(express.static(path.join(__dirname, 'public')));
 
 var server = require('http').createServer(app);
 var io = require('socket.io')(server);
+
 
 var knoxClient = knox.createClient({
     key: AWS_ACCESS_KEY,
@@ -46,7 +56,7 @@ var knoxClient = knox.createClient({
     bucket: S3_BUCKET
 })
 
-require('./routes/routes.js')(express, app, formidable, fs, os, gm, knoxClient);
+require('./routes/routes.js')(express, app, formidable, fs, os, gm, knoxClient, couchbase, aws, S3_BUCKET, io);
 
 
 

@@ -1,11 +1,21 @@
-module.exports = function (express, app, formidable, fs, os, gm, knoxClient) {
+var ImageModel = require("../models/recordmodel");
+
+module.exports = function (express, app, formidable, fs, os, gm, knoxClient, couchbase, aws, S3_BUCKET, io) {
 var router = express.Router();
 //console.log("Router Object", router);
 router.get('/', function (req, res) {
     console.log("Rendering file upload page");
+    //console.log("couchbase object = ", couchbase);
     res.render('upload.html', {host:app.get('host')});
 })
 
+var Socket;
+
+io.on('connection', function(socket) {
+	Socket = socket;
+})
+
+var labels;
 router.post('/upload', function(req, res, next) {
 
 	function generateFilename(filename){
@@ -19,6 +29,10 @@ router.post('/upload', function(req, res, next) {
 		}
 		return (fstring += date + '.' + ext);
 	}
+
+	
+
+
 
 	var tmpFile, nFile, fname;
 	var newForm = formidable.IncomingForm();
@@ -45,10 +59,65 @@ router.post('/upload', function(req, res, next) {
 					req.on('response', function (res) {
 						// body...
 						if (res.statusCode == 200) {
+							// store in couchbase photogallery bucket
+							console.log("The image is uploaded to s3 successfully !");
+							// call aws rekognition to detect labels
+							var labelsReko = (function(filename, res) {
+								var rekognition = new aws.Rekognition(); 
+								var params = {
+								    Image: {
+								        S3Object: {
+								            Bucket: S3_BUCKET, 
+								            Name: filename
+								        }
+								    }, 
+								    MaxLabels: 5, 
+								    MinConfidence: 50
+								};	
+								//console.log("Calling Rekognition with = ", params);
+								rekognition.detectLabels(params, function(err, data) {
+								    if (err) {
+										console.log("Error in REKO" + err);
+									}
+								    else {
+										// successful response
+										data = JSON.stringify(data);
+										var json = JSON.parse(data);
+										labels = json.Labels;
+										//console.log("data labels", labels);
+										var tags = [];
+										for (var entry in labels) {
+										    //console.log("Name: = ", labels[entry].Name);
+											var item = labels[entry].Name;
+											tags.push(item);
+										}
+										var payload = {
+									        filename: filename,
+									        likes: 0,
+									        tags: tags
+										}
+										console.log("Saving payload", payload);
+										ImageModel.save(payload, function(error, result) {
+			            					if(error) {
+			                					return res.status(400).send(error);
+			            					}
+			            					//res.send(result);
+			        					});	
 
+										// notify front-end that image is saved
+										Socket.emit('status', {'msg':'Image Saved Successfully!', 'delay':3000});
+										Socket.emit('doUpdate', {});
+
+										// Delete file
+										fs.unlink(nFile, function() {
+											console.log('Local file deleted !');
+										})
+
+									}
+								})
+							})(fname, res);							
 						}
 					})
-
 					req.end(buf);
 				})
 			});
@@ -57,7 +126,11 @@ router.post('/upload', function(req, res, next) {
 
 }) 
 
-
+router.get('/getimages', function(req, res, next){
+	ImageModel.getAll(function(err, result){
+		res.send(JSON.stringify(result));
+	})
+})
 
 app.use('/', router);	
 }
