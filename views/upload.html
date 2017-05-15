@@ -29,7 +29,7 @@
         })
 
         function renderImages () {
-            $('.gallery ul').html('');
+            /*$('.gallery ul').html('');
                 ajax({
                     url: host + '/getimages',
                     success:function(data){
@@ -49,15 +49,17 @@
                             str += '<div class="imageHolder">';
                             str += '<img src="https://s3.amazonaws.com/la-image-tagger-chakrar27/' + imageList[i].filename + '" alt="">';
                             str += '</div>';
+                            str += '<div class="overlay">';
                             str += '<div class="tags">';
-                            str += '<a href="#" tag-id="' + imageList[i].tags + '</a>';
-                            //str += '<p>' + imageList[i].tags + '</p>';
+                            str += '<a href="#" tag-id="' + imageList[i].tags + '" class="voteUp">';
+                            str += '<h4>' + imageList[i].tags + '</h4>';
+                            str += '</a>';
                             str += '</div>';
                             str += '</li>';
                             $('.gallery ul').append(str);
                         }
                     }
-                })            
+                })  */          
         }
 
         function upload() {
@@ -85,6 +87,32 @@
                 })
             }
         }
+
+
+        $(document).on('click', '.like', function(e){
+            console.log('Like clicked');
+            //var that = $(this);
+            /*ajax({
+                url: host + '/voteup/' + that.data('photoid'),
+                success:function(data){
+                    var parseData = JSON.parse(data.response);
+                    that.find('h4').html(parseData.votes);
+                }
+            }) */
+        })
+
+        $(document).on('click', '.showTag', function(e){
+            console.log('Tag clicked');
+            /*var that = $(this);
+            ajax({
+                url: host + '/voteup/' + that.data('photoid'),
+                success:function(data){
+                    var parseData = JSON.parse(data.response);
+                    that.find('h4').html(parseData.votes);
+                }
+            })*/
+        })
+
     })
   </script>
 </head>
@@ -107,26 +135,24 @@
 		<div class="gallery">
 			<ul>
 				<!-- Repeat the following <li> structure for every image -->
-				<!--<li>
+				<li>
 					<div class="overlay">
 					<div class="voteCtrl">
-						<a href="#">
+						<a href="#" class="like">
 							<img src="/images/like.png" alt="Click Here to Like !">
 							<h4>100</h4>
 						</a>
 					</div>
 					</div>
-					<!--<div class="imageHolder">
+					<div class="imageHolder">
 						<img src="/images/someimage.jpg" alt="">
-					</div>-->
-                    <!--<div class="overlay">
-                        <div class="tags">
-                            <a href="#">
+					</div>
+                    <div class="tags">
+                            <a href="#" class="showTag">
                                 <h4>Mountain</h4>
                             </a>
-                        </div>
-                    <!--</div>
-				</li> -->
+                    </div>
+				</li>
                 
 				<!-- End Repeat -->
 			</ul>

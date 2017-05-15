@@ -86,7 +86,7 @@ body,html {
 .progressBarDiv .progress {
 	position:relative;
 	background: rgb(163, 229, 163);
-	height:2px;
+	height:4px;
 	width: 0%;
 	box-shadow:0px 0px 5px rgb(0,255,0);
 }
@@ -149,10 +149,10 @@ body,html {
 .gallery li .imageHolder {
 	position:absolute;
 	width: 300px;
-	height: 250px;
+	height: 200px;
 	top: 0px;
 	min-width: 300px;
-	min-height: 250px;
+	min-height: 200px;
 	overflow: hidden;
 }
 
@@ -168,7 +168,7 @@ body,html {
 .gallery li .overlay {
 	position:absolute;
 	width:300px;
-	height:250px;
+	height:200px;
 	/*background:rgba(255,255,255,0.2);*/
 	z-index:10;
 	opacity:0.2;
@@ -207,6 +207,34 @@ body,html {
 	font-size: 14px;
 	top: 2px;
 }
+
+.gallery li .tags {
+	position: absolute;
+	/* background: rgba(255, 255, 255, 0.18); */
+	width: 300px;
+	height: 20px;
+	left: 10px;
+	bottom: 10px;
+	border:1px solid;
+	float:left;
+	margin:5px;
+	background: rgb(100, 100, 100);
+}
+.gallery li .tags a {
+	position:absolute;
+}
+.gallery li .tags h4 {
+	position:absolute;
+	top:0px;
+	color: #FFF;
+	margin: 0px;
+	left: 20px;
+	font-family: sans-serif;
+	font-weight: normal;
+	font-size: 14px;
+	top: 2px;
+}
+
 .gallery ul li:hover {
 	-webkit-transform:scale(1.05);
 	-ms-transform:scale(1.05);
