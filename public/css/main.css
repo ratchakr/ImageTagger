@@ -212,11 +212,12 @@ body,html {
 	position: absolute;
 	/* background: rgba(255, 255, 255, 0.18); */
 	width: 300px;
-	height: 20px;
-	left: 10px;
+	height: 30px;
+	left: 0px;
 	bottom: 10px;
 	border:1px solid;
 	float:left;
+	text-align: left
 	margin:5px;
 	background: rgb(100, 100, 100);
 }
