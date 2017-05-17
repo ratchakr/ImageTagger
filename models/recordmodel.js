@@ -72,4 +72,21 @@ ImageModel.getAll = function(callback) {
     });
 };
 
+/*
+ * Get all documents by a particular tag from Couchbase Server using N1QL
+ */
+ImageModel.getImagesByTag = function(tagName, callback) {
+    console.log("getImagesByTag : ", tagName);
+    var statement = "SELECT META(photos).id, filename, likes, tags " +
+                    "FROM `" + config.couchbase.bucket + "` AS photos WHERE $1 IN tags";
+                    //tagName + "IN tags";
+    var query = N1qlQuery.fromString(statement);
+    db.query(query, [tagName], function(error, result) {
+        if(error) {
+            return callback(error, null);
+        }
+        callback(null, result);
+    });
+};
+
 module.exports = ImageModel;

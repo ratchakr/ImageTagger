@@ -133,11 +133,6 @@ router.get('/getimages', function(req, res, next){
 })
 
 router.get('/like/:id', function(req, res, next){
-	//console.log('inside like');
-	//ImageModel.findByIdAndUpdate(req.params.id, {$inc:{votes:1}}, function(err, result){
-		//res.send(200, {votes:result.votes});
-	//})
-
 	ImageModel.getByDocumentId(req.params.id, function(err, result){
 		//console.log('result before incrementing likes = ', result);
 		var jsonFromDB = JSON.stringify(result);
@@ -160,6 +155,18 @@ router.get('/like/:id', function(req, res, next){
 			res.status(200).send({likes:docFromDB.likes});
 		})
 
+	}) 
+})
+
+router.get('/getimages/:tagname', function(req, res, next){
+	console.log('inside getimages by tagname');
+	ImageModel.getImagesByTag(req.params.tagname, function(err, result){
+		console.log('result = ', JSON.stringify(result));
+		var jsonFromDB = JSON.stringify(result);
+		//var docFromDBArr = JSON.parse(jsonFromDB);
+		//var docFromDB = docFromDBArr[0];
+		
+		res.send(JSON.stringify(result));
 	}) 
 })
 
