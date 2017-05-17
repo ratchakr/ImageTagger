@@ -96,7 +96,7 @@ router.post('/upload', function(req, res, next) {
 									        likes: 0,
 									        tags: tags
 										}
-										console.log("Saving payload", payload);
+										//console.log("Saving payload", payload);
 										ImageModel.save(payload, function(error, result) {
 			            					if(error) {
 			                					return res.status(400).send(error);
@@ -110,7 +110,7 @@ router.post('/upload', function(req, res, next) {
 
 										// Delete file
 										fs.unlink(nFile, function() {
-											console.log('Local file deleted !');
+											//console.log('Local file deleted !');
 										})
 
 									}
@@ -130,6 +130,37 @@ router.get('/getimages', function(req, res, next){
 	ImageModel.getAll(function(err, result){
 		res.send(JSON.stringify(result));
 	})
+})
+
+router.get('/like/:id', function(req, res, next){
+	//console.log('inside like');
+	//ImageModel.findByIdAndUpdate(req.params.id, {$inc:{votes:1}}, function(err, result){
+		//res.send(200, {votes:result.votes});
+	//})
+
+	ImageModel.getByDocumentId(req.params.id, function(err, result){
+		//console.log('result before incrementing likes = ', result);
+		var jsonFromDB = JSON.stringify(result);
+		var docFromDBArr = JSON.parse(jsonFromDB);
+		var docFromDB = docFromDBArr[0];
+		console.log("docFromDB ", docFromDB);
+		var likes = docFromDB.likes;
+		console.log("likes before ", likes);
+		// increment the like by 1
+		likes = likes + 1;
+		console.log("likes after ", likes);
+		docFromDB.likes = likes;
+
+		console.log("Saving payload with ", JSON.stringify(docFromDB));
+
+		ImageModel.save(docFromDB, function(error, result) {
+			if(error) {
+				return res.status(400).send(error);
+			}
+			res.status(200).send({likes:docFromDB.likes});
+		})
+
+	}) 
 })
 
 app.use('/', router);	
