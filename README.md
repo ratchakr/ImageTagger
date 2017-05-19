@@ -5,6 +5,7 @@ This application lets users upload images of their choice and uses amazon AI to 
 - Node js and Express
 - AWS S3 to store images
 - The app uses [Amazon Rekognition API](https://aws.amazon.com/rekognition/) to detect tags on an uploaded image
+- Couchbase to store metadata information of the images
 
 ### Demo
 For a demo of the app visit [this link](https://vimeo.com/218099240)
