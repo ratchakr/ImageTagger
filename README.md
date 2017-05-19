@@ -10,7 +10,7 @@ This application lets users upload images of their choice and uses amazon AI to 
 For a demo of the app visit [this link](https://vimeo.com/218099240)
 
 ### Steps to run the app locally and using docker
-- Part 1 [part1](https://docs.google.com/document/d/1nEnvs3dtn5njKPd5GlBOWjxfduV4Vwuh0AdIrRDZrGM/edit?usp=sharing)
+- [Part 1](https://docs.google.com/document/d/1nEnvs3dtn5njKPd5GlBOWjxfduV4Vwuh0AdIrRDZrGM/edit?usp=sharing)
 - Part 2 [part2](https://docs.google.com/document/d/1A1rsmNo4YKKpA9cB9Qy3azztWTriTNm3szqVzRDftMg/edit?usp=sharing)
 - Part 3 [part3](https://docs.google.com/document/d/18u_NeoQyhS2VHg5tzt-SdauhxFU6TF-SOahTGJXyh5s/edit?usp=sharing)
 - Part 4 [part4](https://docs.google.com/document/d/1Nxxwiz9iEjFBN-BpAjh2szdHJ-VNpN_X6WOfOIRJ7KU/edit?usp=sharing)
