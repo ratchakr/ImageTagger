@@ -5,7 +5,6 @@
   "dependencies": {
     "aws-sdk": "*",
     "couchbase": "^2.3.3",
-    "dotenv": "^2.0.0",
     "ejs": "*",
     "express": "4.13.0",
     "formidable": "1.0.17",

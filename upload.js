@@ -2,7 +2,7 @@
 /**
  * Import ENV variables
  */
-require('dotenv').config();
+//require('dotenv').config();
 
 /*
  * Import packages
