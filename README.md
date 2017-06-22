@@ -10,8 +10,8 @@ This application lets users upload images of their choice and uses amazon AI to 
 - Couchbase to store metadata information of the images
 
 ### Demo
-For a demo of the app visit [this link](https://vimeo.com/218099240)
-For a demo of the updated app with additional image recognition features can be seen [here](https://vimeo.com/222643872)
+- For a demo of the app visit [this link](https://vimeo.com/218099240).
+- For a demo of the updated app with additional image recognition features can be seen [here](https://vimeo.com/222643872).
 
 ### Steps to run the app locally and using docker
 - [Part 1](https://docs.google.com/document/d/1nEnvs3dtn5njKPd5GlBOWjxfduV4Vwuh0AdIrRDZrGM/edit?usp=sharing)
