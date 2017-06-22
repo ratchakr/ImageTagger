@@ -33,11 +33,13 @@
         })
 
         function renderImages () {
+            console.log('... Inside renderImages ...');
             $('.gallery ul').html('');
                 ajax({
                     url: host + '/getimages',
                     success:function(data){
                         var imageList = JSON.parse(data.response);
+                        console.log('... imageList ...', imageList);
                         renderUI (imageList);
                     }
                 })             

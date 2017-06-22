@@ -64,57 +64,194 @@ router.post('/upload', function(req, res, next) {
 							// call aws rekognition to detect labels
 							var labelsReko = (function(filename, res) {
 								var rekognition = new aws.Rekognition(); 
-								var params = {
+
+								// check image moderation...if offensive image, send user a message else proceed
+								var paramsMod = {
 								    Image: {
 								        S3Object: {
 								            Bucket: S3_BUCKET, 
 								            Name: filename
 								        }
 								    }, 
-								    MaxLabels: 5, 
 								    MinConfidence: 50
-								};	
-								//console.log("Calling Rekognition with = ", params);
-								rekognition.detectLabels(params, function(err, data) {
-								    if (err) {
+								};
+
+								rekognition.detectModerationLabels(paramsMod, function(err, data) {
+									if(err) {
 										console.log("Error in REKO" + err);
-									}
-								    else {
-										// successful response
+									} else {
+										console.log(" response from moderation = ", data);
 										data = JSON.stringify(data);
-										var json = JSON.parse(data);
-										labels = json.Labels;
-										//console.log("data labels", labels);
-										var tags = [];
-										for (var entry in labels) {
-										    //console.log("Name: = ", labels[entry].Name);
-											var item = labels[entry].Name;
-											tags.push(item);
+										console.log(" response from moderation stringified = ", data);
+										var jsonData = JSON.parse(data);
+										var moderation = jsonData.ModerationLabels;
+										if (null != moderation && moderation.length > 0) {
+											console.log('moderation exists', moderation.length);
+											//res.send(errMsg);
+											Socket.emit('status', {'msg':'Image is offensive...please try with another image!', 'delay':6000});
+										} else {
+											console.log("Image is clean");
+											// add code for celebrity recognition
+											var paramsCelebs = {
+												Image: {
+											        S3Object: {
+											            Bucket: S3_BUCKET, 
+											            Name: filename
+											        }
+								    			}	
+											};
+											rekognition.recognizeCelebrities(paramsCelebs, function(err, data) {
+											  if (err) console.log("err in celeb recognition", err.stack);
+											   // an error occurred
+											  else {
+											  	   if (data != null) {
+												       console.log("celebrity data",data);// successful response
+												       var celebName = null;
+												       if (null != data.CelebrityFaces && data.CelebrityFaces.length > 0) {
+												           celebName = data.CelebrityFaces[0].Name;	
+												       }
+												       console.log("celebrity name = ", celebName);
+												       if (celebName != null) {
+												           Socket.emit('status', {'msg':'You are uploading an image featuring '+ celebName, 'delay':6000});
+													       // no need to detect labels...just add the celeb info as tag in cb
+															var tagsCeleb = [];
+															tagsCeleb.push(celebName);
+															var payloadCeleb = {
+														        filename: filename,
+														        likes: 0,
+														        tags: tagsCeleb
+															}
+															//console.log("Saving payload", payload);
+															ImageModel.save(payloadCeleb, function(error, result) {
+								            					if(error) {
+								                					return res.status(400).send(error);
+								            					}
+								        					});	
+
+															// notify front-end that image is saved
+															Socket.emit('status', {'msg':'Image of ' + celebName + ' Saved Successfully!', 'delay':3000});
+															Socket.emit('doUpdate', {});
+
+															// Delete file
+															fs.unlink(nFile, function() {
+																//console.log('Local file deleted !');
+															})												           
+												       } else {
+											  	   		console.log("No celebrity 1...let's detect labels");
+											  	   		// proceed with detecting labels
+														var params = {
+														    Image: {
+														        S3Object: {
+														            Bucket: S3_BUCKET, 
+														            Name: filename
+														        }
+														    }, 
+														    MaxLabels: 5, 
+														    MinConfidence: 50
+														};	
+														//console.log("Calling Rekognition with = ", params);
+
+														rekognition.detectLabels(params, function(err, data) {
+														    if (err) {
+																console.log("Error in REKO" + err);
+															}
+														    else {
+																// successful response
+																data = JSON.stringify(data);
+																var json = JSON.parse(data);
+																labels = json.Labels;
+																//console.log("data labels", labels);
+																var tags = [];
+																for (var entry in labels) {
+																    //console.log("Name: = ", labels[entry].Name);
+																	var item = labels[entry].Name;
+																	tags.push(item);
+																}
+																var payload = {
+															        filename: filename,
+															        likes: 0,
+															        tags: tags
+																}
+																//console.log("Saving payload", payload);
+																ImageModel.save(payload, function(error, result) {
+									            					if(error) {
+									                					return res.status(400).send(error);
+									            					}
+									            					//res.send(result);
+									        					});	
+
+																// notify front-end that image is saved
+																Socket.emit('status', {'msg':'Image Saved Successfully!', 'delay':3000});
+																Socket.emit('doUpdate', {});
+
+																// Delete file
+																fs.unlink(nFile, function() {
+																	//console.log('Local file deleted !');
+																})
+															}
+														})												       	
+												       }
+											  	    } else {
+											  	   	    // probably redundant code...check and remove later
+											  	   		console.log("No celebrity 2...let's detect labels");
+											  	   		// proceed with detecting labels
+														var params = {
+														    Image: {
+														        S3Object: {
+														            Bucket: S3_BUCKET, 
+														            Name: filename
+														        }
+														    }, 
+														    MaxLabels: 5, 
+														    MinConfidence: 50
+														};	
+														//console.log("Calling Rekognition with = ", params);
+
+														rekognition.detectLabels(params, function(err, data) {
+														    if (err) {
+																console.log("Error in REKO" + err);
+															}
+														    else {
+																// successful response
+																data = JSON.stringify(data);
+																var json = JSON.parse(data);
+																labels = json.Labels;
+																//console.log("data labels", labels);
+																var tags = [];
+																for (var entry in labels) {
+																    //console.log("Name: = ", labels[entry].Name);
+																	var item = labels[entry].Name;
+																	tags.push(item);
+																}
+																var payload = {
+															        filename: filename,
+															        likes: 0,
+															        tags: tags
+																}
+																//console.log("Saving payload", payload);
+																ImageModel.save(payload, function(error, result) {
+									            					if(error) {
+									                					return res.status(400).send(error);
+									            					}
+									            					//res.send(result);
+									        					});	
+
+																// notify front-end that image is saved
+																Socket.emit('status', {'msg':'Image Saved Successfully!', 'delay':3000});
+																Socket.emit('doUpdate', {});
+
+																// Delete file
+																fs.unlink(nFile, function() {
+																	//console.log('Local file deleted !');
+																})
+															}
+														})
+											  	   }
+											    }    
+											});
 										}
-										var payload = {
-									        filename: filename,
-									        likes: 0,
-									        tags: tags
-										}
-										//console.log("Saving payload", payload);
-										ImageModel.save(payload, function(error, result) {
-			            					if(error) {
-			                					return res.status(400).send(error);
-			            					}
-			            					//res.send(result);
-			        					});	
-
-										// notify front-end that image is saved
-										Socket.emit('status', {'msg':'Image Saved Successfully!', 'delay':3000});
-										Socket.emit('doUpdate', {});
-
-										// Delete file
-										fs.unlink(nFile, function() {
-											//console.log('Local file deleted !');
-										})
-
 									}
-								})
+								}) 
 							})(fname, res);							
 						}
 					})
@@ -128,6 +265,7 @@ router.post('/upload', function(req, res, next) {
 
 router.get('/getimages', function(req, res, next){
 	ImageModel.getAll(function(err, result){
+		console.log("result:::getimages = ", JSON.stringify(result));
 		res.send(JSON.stringify(result));
 	})
 })
