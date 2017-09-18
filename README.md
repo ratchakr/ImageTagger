@@ -20,6 +20,6 @@ This application lets users upload images of their choice and uses amazon AI to 
 - [Part 4](https://docs.google.com/document/d/1Nxxwiz9iEjFBN-BpAjh2szdHJ-VNpN_X6WOfOIRJ7KU/edit?usp=sharing)
 
 ### TODO-s
-- Currently the app runs on aws ec2 (would switch from ec2 with lambda as next step)
+- Currently the app runs on aws ec2 (would switch from ec2 with lambda to go serverless)
 - Plug into a CI/CD pipeline with Jenkins
 
