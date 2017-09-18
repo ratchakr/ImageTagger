@@ -1,6 +1,6 @@
 {
-  "name": "imagetagger",
-  "version": "1.0.0",
+  "name": "photogallery",
+  "version": "2.0.0",
   "private": true,
   "dependencies": {
     "aws-sdk": "*",
